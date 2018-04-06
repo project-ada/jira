@@ -334,7 +334,7 @@ class JIRA(object):
 
     def __init__(self, server=None, options=None, basic_auth=None, oauth=None, jwt=None, kerberos=False, kerberos_options=None,
                  validate=False, get_server_info=True, async=False, logging=True, max_retries=3, proxies=None,
-                 timeout=None, auth=None):
+                 timeout=None, auth=None, extra_cookies=None):
         """Construct a JIRA client instance.
 
         Without any arguments, this client will connect anonymously to the JIRA instance
@@ -385,6 +385,7 @@ class JIRA(object):
         :param timeout: Set a read/connect timeout for the underlying calls to JIRA (default: None)
         Obviously this means that you cannot rely on the return code when this is enabled.
         :param auth: Set a cookie auth token if this is required.
+        :param extra_cookies: Specify a dict or RequestsCookieJar to add to the requests session.
         """
         # force a copy of the tuple to be used in __del__() because
         # sys.version_info could have already been deleted in __del__()
@@ -439,6 +440,8 @@ class JIRA(object):
             self._session = ResilientSession(timeout=timeout)
             self._session.verify = verify
         self._session.headers.update(self._options['headers'])
+        if extra_cookies:
+            self._session.cookies.update(extra_cookies)
 
         self._session.max_retries = max_retries
 
